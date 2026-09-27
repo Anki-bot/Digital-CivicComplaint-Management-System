@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>JanSeva — Digital Civic Complaint Management System | Report & Track</title>
+<meta name="description" content="JanSeva: file civic complaints for roads, water, electricity, sanitation with photo, map location and live tracking to resolution.">
+<link rel="manifest" href="manifest.json"><meta name="theme-color" content="#0f2a5c">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div class="tricolor"></div>
+<div class="ticker"><span id="tickerText">Welcome to JanSeva</span></div>
+<nav class="navbar"><div class="container nav-inner">
+  <a class="brand" href="index.html"><span class="brand-mark">🏛️</span><span>JanSeva<small>CIVIC PORTAL • PRO</small></span></a>
+  <button class="menu-btn" id="menuToggle">☰</button>
+  <div class="nav-links" id="navLinks">
+    <a href="index.html">Home</a><a href="departments.html">Departments</a><a href="about.html">About</a><a href="faq.html">FAQ</a>
+    <a href="file-complaint.html" data-auth="user" data-i18n="file">File a Complaint</a>
+    <a href="dashboard.html" data-auth="user" data-i18n="my">My Complaints</a>
+    <a href="track.html" data-i18n="track">Track by ID</a>
+    <a href="admin.html" data-auth="admin" data-i18n="admin">Admin</a>
+    <a href="profile.html" data-auth="user">Profile</a>
+    <a href="login.html" data-auth="guest" data-i18n="login">Login</a>
+    <a href="register.html" data-auth="guest" class="btn btn-accent btn-sm" style="color:#1f2937">Register</a>
+    <span id="navUser" data-auth="user" style="color:#fbbf24;font-size:.85rem"></span>
+    <a href="#" data-auth="user" data-logout>Logout</a>
+    <button class="icon-btn" id="themeBtn" title="Dark mode">🌙</button>
+    <button class="icon-btn" id="langBtn" title="Language">हिं</button>
+  </div>
+</div></nav>
+
+<header class="hero"><div class="container hero-grid">
+  <div>
+    <div class="pill">✅ Trusted civic redressal • 🗺️ Map-enabled • ⚡ SLA-tracked</div>
+    <h1>Report civic issues.<br>Track them to resolution.</h1>
+    <p class="lead">Roads, water, electricity, sanitation, streetlights — file in 2 minutes with photo + map pin, get ID like CIV-2026-1001, watch Pending → In Progress → Resolved with officer remarks.</p>
+    <div class="hero-actions">
+      <a href="file-complaint.html" class="btn btn-accent">📝 File a Complaint</a>
+      <a href="departments.html" class="btn" style="background:#fff;color:#0f2a5c">🏢 Departments</a>
+    </div>
+    <form id="heroSearchForm" class="searchbar"><input id="heroSearch" data-i18n="searchPh" placeholder="Search complaint ID, e.g. CIV-2026-1001…"><button class="btn btn-accent" type="submit">🔍</button></form>
+    <p style="margin-top:12px;font-size:.83rem;color:#dbeafe">Citizen demo: <b>demo@citizen.com / Demo123!</b> • Admin: <b>admin@civic.com / Admin123!</b></p>
+  </div>
+  <div class="hero-card">
+    <h3>📊 Live Portal Stats</h3>
+    <div class="stat-row">
+      <div class="stat"><b id="statTotal">0</b><span>Total</span></div>
+      <div class="stat"><b id="statPending">0</b><span>Pending</span></div>
+      <div class="stat"><b id="statProgress">0</b><span>In Progress</span></div>
+      <div class="stat"><b id="statResolved">0</b><span>Resolved</span></div>
+    </div>
+    <div style="margin-top:12px" id="announceList"></div>
+    <div style="margin-top:12px;display:flex;gap:10px">
+      <a href="register.html" class="btn btn-primary btn-sm" style="flex:1;text-align:center">Create Account</a>
+      <a href="login.html" class="btn btn-outline btn-sm" style="flex:1;text-align:center">Login</a>
+    </div>
+  </div>
+</div></header>
+
+<section class="section"><div class="container">
+  <h2 class="section-title reveal">How it works</h2>
+  <p class="section-sub reveal">Transparent 4-step grievance redressal with SLA</p>
+  <div class="grid-4">
+    <div class="card hover reveal"><div class="step-num">1</div><h3>Register & File</h3><p>Pick category, priority, ward, drop a map pin, add photo proof.</p></div>
+    <div class="card hover reveal"><div class="step-num">2</div><h3>Get ID + SLA</h3><p>Instant ID + due-date. Urgent = 24h, High = 48h, Medium = 96h.</p></div>
+    <div class="card hover reveal"><div class="step-num">3</div><h3>Dept Acts</h3><p>Auto-assigned department, staff, remarks. Upvote to prioritize.</p></div>
+    <div class="card hover reveal"><div class="step-num">4</div><h3>Rate & Close</h3><p>Star-rate the resolution. Timeline stays public for trust.</p></div>
+  </div>
+
+  <h2 class="section-title reveal" style="margin-top:44px">🗺️ Live issue map</h2>
+  <p class="section-sub reveal">Geo-tagged complaints plotted from the portal</p>
+  <div class="card reveal"><div id="publicMap" class="map-box"></div><p class="form-hint">Tip: file with “Use my location” or tap the map to add your pin.</p></div>
+
+  <h2 class="section-title reveal" style="margin-top:44px">Recently filed</h2>
+  <p class="section-sub reveal">Live public feed — upvote issues in your area</p>
+  <div class="grid-3" id="recentList"></div>
+
+  <h2 class="section-title reveal" style="margin-top:44px">Departments</h2>
+  <div class="grid-3">
+    <div class="card hover reveal"><div class="dept-icon">🛣️</div><h3>Public Works</h3><p>Roads, potholes, footpaths. SLA 48–96h.</p><a href="departments.html" class="btn btn-ghost btn-sm" style="margin-top:8px">View</a></div>
+    <div class="card hover reveal"><div class="dept-icon">💧</div><h3>Water Board</h3><p>Leaks, supply, quality. Tanker on urgent.</p><a href="departments.html" class="btn btn-ghost btn-sm" style="margin-top:8px">View</a></div>
+    <div class="card hover reveal"><div class="dept-icon">⚡💡</div><h3>Power & Lights</h3><p>Outages, wires, streetlights with photo proof.</p><a href="departments.html" class="btn btn-ghost btn-sm" style="margin-top:8px">View</a></div>
+  </div>
+
+  <div class="grid-2" style="margin-top:22px">
+    <div class="card reveal"><h3>⭐ Citizen love</h3><p>“Pothole fixed in 2 days after upvotes pushed it to urgent. The timeline + SMS-like remarks built real trust.” — Demo Citizen, Ward 4</p><p style="margin-top:8px">“Garbage backlog cleared same weekend. Receipt + tracking ID made follow-up easy.” — Ward 1 resident</p></div>
+    <div class="card reveal"><h3>📞 Always reachable</h3><p>Toll-free <b>1800-111-000</b> • support@janseva.gov<br>Mon–Sat, 9am–6pm. For outages/waterlogging use Urgent priority.</p><div style="margin-top:10px;display:flex;gap:8px"><a class="btn btn-primary btn-sm" href="contact.html">Contact / Helpline</a><a class="btn btn-outline btn-sm" href="faq.html">FAQ</a></div></div>
+  </div>
+</div></section>
+
+<footer><div class="container foot-inner">
+  <div><h4>JanSeva Portal</h4><p style="font-size:.88rem">Best-in-class civic redressal: maps, SLA, upvotes, ratings, receipts.</p></div>
+  <div><h4>Portal</h4><a href="file-complaint.html">File Complaint</a><br><a href="track.html">Track</a><br><a href="dashboard.html">My Complaints</a><br><a href="profile.html">Profile</a></div>
+  <div><h4>Info</h4><a href="about.html">About</a><br><a href="departments.html">Departments</a><br><a href="faq.html">FAQ</a><br><a href="privacy.html">Privacy</a></div>
+  <div><h4>Help</h4><p style="font-size:.88rem">1800-111-000<br>support@janseva.gov<br><a href="contact.html">Contact page →</a></p></div>
+</div><div class="copy">© <span id="year"></span> JanSeva Civic Portal • Data stays in your browser (localStorage demo)</div></footer>
+
+<script src="js/data.js"></script><script src="js/api.js"></script><script src="js/auth.js"></script><script src="js/ui.js"></script><script src="js/main.js"></script><script src="js/maps.js"></script><script src="js/engage.js"></script><script src="js/complaint.js"></script>
+</body>
+</html>

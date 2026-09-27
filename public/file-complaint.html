@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>File Complaint — JanSeva Pro</title><meta name="description" content="File a civic complaint with photo and map location.">
+<link rel="manifest" href="manifest.json"><link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css"></head><body>
+<div class="tricolor"></div><div class="ticker"><span id="tickerText">Welcome</span></div>
+<nav class="navbar"><div class="container nav-inner">
+<a class="brand" href="index.html"><span class="brand-mark">🏛️</span><span>JanSeva<small>FILE COMPLAINT</small></span></a>
+<button class="menu-btn" id="menuToggle">☰</button>
+<div class="nav-links" id="navLinks"><a href="index.html">Home</a><a href="file-complaint.html" data-auth="user">File Complaint</a><a href="dashboard.html" data-auth="user">My Complaints</a><a href="track.html">Track</a><a href="admin.html" data-auth="admin">Admin</a><a href="profile.html" data-auth="user">Profile</a><span id="navUser" data-auth="user" style="color:#fbbf24;font-size:.85rem"></span><a href="#" data-auth="user" data-logout>Logout</a><button class="icon-btn" id="themeBtn">🌙</button><button class="icon-btn" id="langBtn">हिं</button></div>
+</div></nav>
+<section class="section"><div class="container"><div class="card form-wrap" style="max-width:680px">
+<h2>File a Complaint 📝</h2><p style="color:var(--muted);font-size:.92rem">Photo + map pin = fastest resolution. Urgent issues get 24h SLA.</p>
+<form id="complaintForm" novalidate>
+<label for="category">Category</label><select id="category" required><option value="">Select…</option><option value="roads">🛣️ Roads & Potholes</option><option value="water">💧 Water Supply</option><option value="electricity">⚡ Electricity</option><option value="sanitation">🧹 Sanitation / Garbage</option><option value="streetlight">💡 Streetlight</option><option value="other">📦 Other</option></select>
+<div class="grid-2"><div><label for="priority">Priority</label><select id="priority"><option>Medium</option><option>Low</option><option>High</option><option>Urgent</option></select></div>
+<div><label for="ward">Ward</label><select id="ward"><option>Ward 1</option><option>Ward 2</option><option>Ward 3</option><option selected>Ward 4</option><option>Ward 5</option><option>Ward 6</option><option>Ward 7</option><option>Ward 8</option></select></div></div>
+<label for="title">Title (min 5 chars)</label><input id="title" placeholder="e.g. Potholes on MG Road near bus stop" required>
+<label for="description">Description (min 10 chars)</label><textarea id="description" placeholder="What, since when, severity…" required></textarea>
+<label for="location">Location / Landmark</label><input id="location" placeholder="e.g. MG Road, Ward 4, Near Post Office" required>
+<label>📍 Map pin (optional)</label><div id="pickMap" class="map-box map-small"></div>
+<div class="grid-2"><div><label for="lat">Latitude</label><input id="lat" placeholder="28.61390" readonly></div><div><label for="lng">Longitude</label><input id="lng" placeholder="77.20900" readonly></div></div>
+<button type="button" id="useGeo" class="btn btn-ghost btn-sm" style="margin-top:10px">📡 Use my location</button>
+<label for="photo">Photo proof (image &lt; 2MB)</label><input id="photo" type="file" accept="image/*"><img id="photoPreview" class="photo-preview" alt="preview">
+<label style="margin-top:12px"><input type="checkbox" id="anonymous" style="width:auto"> File anonymously (name hidden publicly)</label>
+<button class="btn btn-primary" style="width:100%;margin-top:18px" type="submit">Submit Complaint</button>
+<p class="form-hint">You get ID like CIV-2026-XXXX + SLA due date + printable receipt.</p>
+</form></div></div></section>
+<footer><div class="copy">© <span id="year"></span> JanSeva • <a href="faq.html">Filing tips</a></div></footer>
+<script src="js/data.js"></script><script src="js/api.js"></script><script src="js/auth.js"></script><script src="js/ui.js"></script><script src="js/main.js"></script><script src="js/maps.js"></script><script src="js/engage.js"></script><script src="js/complaint.js"></script>
+</body></html>

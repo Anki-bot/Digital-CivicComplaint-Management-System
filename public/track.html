@@ -1,0 +1,12 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Track Complaint — JanSeva Pro</title><link rel="manifest" href="manifest.json"><link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet"><link rel="stylesheet" href="css/style.css"></head><body>
+<div class="tricolor"></div><div class="ticker"><span id="tickerText">Track</span></div>
+<nav class="navbar"><div class="container nav-inner"><a class="brand" href="index.html"><span class="brand-mark">🏛️</span><span>JanSeva<small>TRACK</small></span></a><button class="menu-btn" id="menuToggle">☰</button>
+<div class="nav-links" id="navLinks"><a href="index.html">Home</a><a href="file-complaint.html" data-auth="user">File Complaint</a><a href="dashboard.html" data-auth="user">My Complaints</a><a href="track.html">Track</a><a href="admin.html" data-auth="admin">Admin</a><a href="login.html" data-auth="guest">Login</a><span id="navUser" data-auth="user" style="color:#fbbf24;font-size:.85rem"></span><a href="#" data-auth="user" data-logout>Logout</a><button class="icon-btn" id="themeBtn">🌙</button></div></div></nav>
+<section class="section"><div class="container"><div class="card form-wrap"><h2>Track Complaint 🔍</h2><p style="color:var(--muted);font-size:.92rem">No login needed. Upvote, comment, share, print receipt, rate after resolve.</p>
+<form id="trackForm"><label for="trackId">Complaint ID</label><input id="trackId" placeholder="CIV-2026-XXXX" required><button class="btn btn-primary" style="width:100%;margin-top:14px" type="submit">Track Status</button></form></div>
+<div style="max-width:640px;margin:18px auto 0" id="trackResult"></div></div></section>
+<footer><div class="copy">© <span id="year"></span> JanSeva</div></footer>
+<script src="js/data.js"></script><script src="js/api.js"></script><script src="js/auth.js"></script><script src="js/ui.js"></script><script src="js/main.js"></script><script src="js/engage.js"></script><script src="js/complaint.js"></script>
+</body></html>
