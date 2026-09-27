@@ -16,7 +16,8 @@ if (USE_PG) {
   });
 } else {
   const sqlite3 = require('sqlite3').verbose();
-  sqliteDb = new sqlite3.Database(path.join(__dirname, '..', 'database.db'));
+  const dbPath = process.env.VERCEL ? '/tmp/database.db' : path.join(__dirname, '..', 'database.db');
+  sqliteDb = new sqlite3.Database(dbPath);
 }
 
 function toPg(sql) {

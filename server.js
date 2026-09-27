@@ -19,10 +19,20 @@ app.use(express.urlencoded({ extended: true }));
 app.use(rateLimit({ windowMs: 60 * 1000, max: 200 }));
 
 // Uploads + frontend
-const upDir = path.join(__dirname, 'uploads');
+const upDir = process.env.VERCEL ? '/tmp/uploads' : path.join(__dirname, 'uploads');
 if (!fs.existsSync(upDir)) fs.mkdirSync(upDir, { recursive: true });
 app.use('/uploads', express.static(upDir));
 app.use(express.static(path.join(__dirname, 'public')));
+
+// Ensure DB tables exist before handling requests on serverless cold start
+let dbReady = null;
+app.use(async (req, res, next) => {
+  try {
+    if (!dbReady) dbReady = init();
+    await dbReady;
+    next();
+  } catch (e) { next(e); }
+});
 
 // APIs
 app.use('/api/auth', require('./routes/auth'));
