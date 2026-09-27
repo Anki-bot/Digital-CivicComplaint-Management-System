@@ -1,60 +1,98 @@
-# JanSeva Pro — Full-Stack Civic Complaint Management (Node + Express + SQLite/Postgres, Vercel-ready)
+# JanSeva Pro — Full-Stack Civic Complaint Management System
 
-Complete website: real server, real database, real auth, real photo persistence. Same premium UI, backed by APIs. No cloud keys needed.
+<p align="left">
+  <a href="https://digital-civiccomplaint-management-s.vercel.app/" target="_blank">
+    <img src="https://img.shields.io/badge/Live_Demo-Vercel-000000?style=for-the-badge&logo=vercel&logoColor=white" alt="Live Demo on Vercel" />
+  </a>
+  <img src="https://img.shields.io/badge/Node.js-0D1117?style=for-the-badge&logo=nodedotjs&logoColor=339933" alt="Node.js" />
+  <img src="https://img.shields.io/badge/Express.js-0D1117?style=for-the-badge&logo=express&logoColor=white" alt="Express" />
+  <img src="https://img.shields.io/badge/SQLite_%2F_Postgres-0D1117?style=for-the-badge&logo=postgresql&logoColor=4169E1" alt="Database" />
+  <img src="https://img.shields.io/badge/JWT_Auth-0D1117?style=for-the-badge&logo=jsonwebtokens&logoColor=white" alt="JWT" />
+</p>
 
-## Run locally (2 commands, zero setup)
+**JanSeva Pro** is an end-to-end civic grievance and SLA management platform built with **Node.js**, **Express**, and a **dual-mode SQLite/PostgreSQL database engine**. Citizens can file geo-tagged complaints with photo evidence, upvote community issues, and track real-time resolution timelines, while administrators triage, assign departments, and audit SLA compliance.
+
+- **Live Deployment:** [digital-civiccomplaint-management-s.vercel.app](https://digital-civiccomplaint-management-s.vercel.app)
+
+---
+
+## 🚀 Quick Start (Local Development)
+
 ```bash
-cd civic-complaint-system
+git clone [https://github.com/Anki-bot/Digital-CivicComplaint-Management-System.git](https://github.com/Anki-bot/Digital-CivicComplaint-Management-System.git)
+cd Digital-CivicComplaint-Management-System
 npm install
 npm start
 ```
-Open **http://localhost:3000**. Data persists in `database.db` across restarts (SQLite mode).
+Open **http://localhost:3000**. Data persists automatically in `database.db` across restarts in local SQLite mode.
 
-## Demo logins (seeded in SQLite with bcrypt hashes)
-- Citizen: `demo@citizen.com` / `Demo123!`
-- Admin: `admin@civic.com` / `Admin123!`
+### Demo Credentials (Pre-seeded with bcrypt hashes)
+| Role | Email | Password |
+| :--- | :--- | :--- |
+| **Citizen Portal** | `demo@citizen.com` | `Demo123!` |
+| **Admin Dashboard** | `admin@civic.com` | `Admin123!` |
 
-## What makes it full-stack (not just frontend)
-- **Backend:** Express + dual-mode DB (SQLite file locally, Postgres when `DATABASE_URL` is set — same code), JWT auth, bcrypt passwords, photos stored as Base64 **in the DB** (zero cloud keys, persist wherever the DB persists), validation, rate-limit, helmet, audit log
-- **APIs:** `/api/auth/*` (register/login/me/profile/forgot/reset), `/api/complaints/*` (file w/ photo, mine, track public, upvote, comment, rate, edit/delete), `/api/admin/*` (stats, filtered list, status+remark w/ reject-reason rule, assign, users, CSV export), `/api/announcements`, `/api/contact`, `/api/departments`, `/api/health`
-- **Frontend in `public/`:** all 14 pages unchanged in look; `js/api.js` bridge uses JWT + fetch when served over HTTP, falls back to localStorage demo when opened via `file://`
-- **Complete website things:** navbar/footer everywhere, about/departments/contact (saved to DB)/faq/privacy/404, SEO meta, PWA manifest+SW, dark mode, maps, SLA, receipts, share, contact helpline
+---
 
-## Key flows (all verified)
-Register → login (JWT) → file with photo/map → track by ID → upvote/comment → admin assign → resolve+remark → star rating → CSV export. Rejected status requires a reason. Only Pending own complaints editable/deletable.
+## 🏗️ Architecture & Core Capabilities
 
-## Files
-`server.js, seed.js, vercel.json, package.json, .env(.example), config/db.js, middleware/auth.js, middleware/upload.js, routes/auth|complaints|admin|public.js, public/* (UI: 14 pages + css + js + assets), uploads/legacy, database.db (gitignored, auto-created)`
+- **Backend & Security:** Express.js REST API with dual-mode persistence (SQLite locally, PostgreSQL when `DATABASE_URL` is configured), JWT authentication, `bcryptjs` password hashing, Base64 database photo persistence, `helmet` security headers, request rate-limiting, and full admin audit logging.
+- **REST API Surface:**
+  - `/api/auth/*` — Registration, JWT login, session verification, profile management, password reset.
+  - `/api/complaints/*` — Multipart photo submission, public tracking, community upvoting, comments, and citizen star ratings.
+  - `/api/admin/*` — Real-time KPI analytics, multi-filter triage, department routing, mandatory rejection remarks, user management, and CSV export.
+  - `/api/announcements`, `/api/contact`, `/api/departments`, `/api/health`.
+- **Responsive 14-Page Client (`public/`):** Features interactive map views, automated SLA countdowns, printable complaint receipts, dark mode, and Progressive Web App (PWA) manifest + service worker support.
 
-## SLA
-Urgent 24h • High 48h • Medium 96h • Low 168h. Overdue cases highlight red for admins.
+---
 
-## API quick table
-| Area | Endpoints |
-|---|---|
-| Health | `GET /api/health` |
-| Auth | `POST /api/auth/register, /login` · `GET /api/auth/me` · `PUT /api/auth/profile` · `POST /api/auth/forgot, /reset` |
-| Complaints | `POST /api/complaints` (multipart photo) · `GET /api/complaints/mine, /public, /map, /track/:id` · `PUT/DELETE /api/complaints/:id` · `POST /api/complaints/:id/upvote, /comments, /rating` |
-| Admin | `GET /api/admin/stats, /complaints, /users, /audit` · `PUT /api/admin/complaints/:id, /users/:id` · `DELETE /api/admin/complaints/:id` · `GET /api/admin/export.csv` |
-| Public | `GET /api/announcements, /departments` · `POST /api/announcements (admin), /api/contact` |
+## ⏱️ SLA Governance Matrix
 
-## Env vars (all optional for local run)
-| Name | Purpose | Local default |
-|---|---|---|
-| `PORT` | server port | `3000` |
-| `JWT_SECRET` | login token signing (change in production!) | dev fallback |
-| `JWT_EXPIRES` | token lifetime | `7d` |
-| `DATABASE_URL` | Postgres URL (e.g. free Neon) — absent = local SQLite | unset |
+- **Urgent:** 24 Hours
+- **High:** 48 Hours
+- **Medium:** 96 Hours
+- **Low:** 168 Hours
 
-## Vercel 5-minute tail (your clicks — no code left)
-1. Push this repo to GitHub (see below), then vercel.com → **Add New → Project → Import** `Digital-CivicComplaint-Management-System`.
-2. Framework: Other/Node. Build: default (`npm install`). Env: add `JWT_SECRET` (any long random string). `DATABASE_URL` optional:
-   - WITHOUT it: site fully usable; data resets on redeploy (fine for demo link).
-   - WITH it (persistent link): create free Neon Postgres (neon.tech → New Project → copy connection string) → paste as `DATABASE_URL` → Redeploy. Complaints/photos/users then survive forever.
-3. **Deploy** → you get `https://<name>.vercel.app` → GitHub repo → ⚙️ About → **Website** field → paste the link. Done — the link IS the whole website.
+Overdue tickets are automatically flagged and highlighted in the administrative triage queue.
 
-## Screenshots
-Add `docs/*.png` (home, file form, track timeline, admin dashboard) before sharing the repo link.
+---
 
-## License
-MIT — see `LICENSE`.
+## 📡 API Reference
+
+| Module | Endpoints |
+| :--- | :--- |
+| **Health** | `GET /api/health` |
+| **Authentication** | `POST /api/auth/register, /login` · `GET /api/auth/me` · `PUT /api/auth/profile` · `POST /api/auth/forgot, /reset` |
+| **Complaints** | `POST /api/complaints` (multipart photo) · `GET /api/complaints/mine, /public, /map, /track/:id` · `PUT/DELETE /api/complaints/:id` · `POST /api/complaints/:id/upvote, /comments, /rating` |
+| **Administration** | `GET /api/admin/stats, /complaints, /users, /audit` · `PUT /api/admin/complaints/:id, /users/:id` · `DELETE /api/admin/complaints/:id` · `GET /api/admin/export.csv` |
+| **Public Services** | `GET /api/announcements, /departments` · `POST /api/announcements (admin), /api/contact` |
+
+---
+
+## ⚙️ Environment Variables
+
+All environment variables are optional for local development:
+
+| Variable | Description | Default |
+| :--- | :--- | :--- |
+| `PORT` | HTTP server listening port | `3000` |
+| `JWT_SECRET` | Secret key for signing JWT tokens | Development fallback |
+| `JWT_EXPIRES` | Token expiration window | `7d` |
+| `DATABASE_URL` | PostgreSQL connection string (uses local SQLite if unset) | Unset |
+
+---
+
+## 📂 Project Structure
+
+```text
+├── config/db.js          # Dual-mode SQLite / PostgreSQL database adapter & schema init
+├── middleware/           # JWT authentication guards & Multer image upload validation
+├── routes/               # Modular Express routers (auth, complaints, admin, public)
+├── public/               # 14-page responsive UI, dark-mode CSS, API client bridge & PWA
+├── server.js             # Express application entry point & serverless export
+├── seed.js               # Database seeding script for demo accounts and sample tickets
+└── vercel.json           # Serverless routing configuration
+```
+
+## 📄 License
+Distributed under the **MIT License**. See `LICENSE` for details.
