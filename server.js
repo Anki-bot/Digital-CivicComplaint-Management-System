@@ -67,6 +67,13 @@ app.get('*', (req, res, next) => {
   res.status(404).sendFile(path.join(__dirname, 'public', '404.html'));
 });
 
-init().then(() => {
-  app.listen(PORT, () => console.log(`✅ JanSeva full-stack live at http://localhost:${PORT}`));
-}).catch(err => { console.error('DB init failed', err); process.exit(1); });
+module.exports = app;
+
+if (require.main === module) {
+  init().then(() => {
+    app.listen(PORT, () => console.log(`✅ JanSeva full-stack live at http://localhost:${PORT}`));
+  }).catch(err => { console.error('DB init failed', err); process.exit(1); });
+} else {
+  // Serverless (Vercel): init lazily per cold start
+  init().catch(err => console.error('DB init failed', err));
+}

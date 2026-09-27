@@ -12,7 +12,7 @@ async function fullComplaint(id, viewerId) {
   const c = await get('SELECT * FROM complaints WHERE id=?', [id]);
   if (!c) return null;
   c.anonymous = !!c.anonymous;
-  c.photo = c.photo_path || '';
+  c.photo = c.photo_data || c.photo_path || '';
   const comments = await all('SELECT user_name AS by, text, created_at AS date FROM comments WHERE complaint_id=? ORDER BY id', [id]);
   const history = await all('SELECT status, remark, date FROM history WHERE complaint_id=? ORDER BY id', [id]);
   const ups = await all('SELECT user_id FROM upvotes WHERE complaint_id=?', [id]);
@@ -26,7 +26,7 @@ async function fullComplaint(id, viewerId) {
 // Public: recent + map + track
 r.get('/public', async (req, res) => {
   const rows = await all('SELECT * FROM complaints ORDER BY created_at DESC LIMIT 6');
-  for (const c of rows) { c.photo = c.photo_path || ''; }
+  for (const c of rows) { c.photo = c.photo_data || c.photo_path || ''; }
   res.json({ complaints: rows });
 });
 r.get('/map', async (req, res) => {
@@ -47,7 +47,7 @@ r.get('/mine', auth, async (req, res) => {
   if (f !== 'All') out = out.filter(c => c.status === f);
   if (q) out = out.filter(c => (c.title + c.id + c.location).toLowerCase().includes(q));
   for (const c of out) {
-    c.photo = c.photo_path || '';
+    c.photo = c.photo_data || c.photo_path || '';
     const ups = await all('SELECT user_id FROM upvotes WHERE complaint_id=?', [c.id]);
     c.upvotesCount = ups.length; c.voted = ups.some(x => x.user_id === req.user.id);
     c.comments = await all('SELECT user_name AS by, text, created_at AS date FROM comments WHERE complaint_id=? ORDER BY id', [c.id]);
@@ -74,11 +74,11 @@ r.post('/', auth, upload.single('photo'), body('title').isLength({ min: 5 }),
     }
     const anon = anonymous === '1' || anonymous === true || anonymous === 'true' ? 1 : 0;
     const uname = anon ? 'Anonymous Citizen' : req.user.name;
-    const photo = req.file ? `/uploads/${req.file.filename}` : '';
-    await run(`INSERT INTO complaints(id,user_id,user_email,user_name,category,title,description,location,ward,priority,lat,lng,anonymous,photo_path,status,assigned_dept,sla_due,created_at,updated_at)
-      VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`,
+    const photoData = req.file ? require('../middleware/upload').toDataURL(req.file) : '';
+    await run(`INSERT INTO complaints(id,user_id,user_email,user_name,category,title,description,location,ward,priority,lat,lng,anonymous,photo_path,photo_data,status,assigned_dept,sla_due,created_at,updated_at)
+      VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`,
       [id, req.user.id, req.user.email, uname, category, title.trim(), description.trim(), location.trim(),
-       ward || 'Ward 4', priority || 'Medium', lat || '', lng || '', anon, photo, 'Pending',
+       ward || 'Ward 4', priority || 'Medium', lat || '', lng || '', anon, '', photoData, 'Pending',
        deptForCategory(category), slaDue(now, priority || 'Medium'), now, now]);
     await run('INSERT INTO history(complaint_id,status,remark,date) VALUES(?,?,?,?)', [id, 'Pending', 'Complaint registered', now]);
     await run('INSERT INTO audit(actor,action,complaint_id,detail,date) VALUES(?,?,?,?,?)', [req.user.email, 'FILE', id, `${category}/${priority || 'Medium'}`, now]);

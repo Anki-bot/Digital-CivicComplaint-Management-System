@@ -28,7 +28,7 @@ r.get('/complaints', async (req, res) => {
   if (priority !== 'All') rows = rows.filter(c => (c.priority || '') === priority);
   if (q) { const s = q.toLowerCase(); rows = rows.filter(c => (c.id + c.title + c.location + c.user_email + (c.assigned_staff || '')).toLowerCase().includes(s)); }
   for (const c of rows) {
-    c.photo = c.photo_path || '';
+    c.photo = c.photo_data || c.photo_path || '';
     const ups = await get('SELECT COUNT(*) n FROM upvotes WHERE complaint_id=?', [c.id]);
     c.upvotesCount = ups.n;
     c.comments = await all('SELECT user_name AS by, text, created_at AS date FROM comments WHERE complaint_id=? ORDER BY id', [c.id]);
