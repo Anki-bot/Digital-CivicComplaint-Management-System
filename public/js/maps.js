@@ -15,12 +15,14 @@ function initPicker(mapId, latId, lngId){
     if(geo) geo.addEventListener('click',()=>{ if(!navigator.geolocation){showToast('Geolocation not supported.','error');return;} navigator.geolocation.getCurrentPosition(p=>{ const ll=[p.coords.latitude,p.coords.longitude]; map.setView(ll,15); if(marker)marker.setLatLng(ll); else marker=L.marker(ll,{draggable:true}).addTo(map); set(ll[0],ll[1]); showToast('Location captured.','success'); },()=>showToast('Location denied. Tap map manually.','error')); });
   });
 }
-function initPublicMap(mapId, max=50){
-  const box=document.getElementById(mapId); if(!box||typeof getComplaints!=='function') return;
+function initPublicMap(mapId, points, max=50){
+  const box=document.getElementById(mapId); if(!box) return;
   leafletJS((err)=>{
     if(err||typeof L==='undefined'){ box.innerHTML='<p style="padding:20px;color:var(--muted)">Map unavailable offline.</p>'; return; }
+    if(box._leaflet_id) return;
     const map=L.map(mapId).setView(defaultCenter(),11);
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,attribution:'© OpenStreetMap'}).addTo(map);
-    getComplaints().filter(c=>c.lat&&c.lng).slice(0,max).forEach(c=>{ L.marker([+c.lat,+c.lng]).addTo(map).bindPopup(`<b>${escapeHTML(c.title)}</b><br>${escapeHTML(c.id)} • ${escapeHTML(c.status)}`); });
+    const list = Array.isArray(points) ? points : (typeof getComplaints==='function' ? getComplaints() : []);
+    list.filter(c=>c.lat&&c.lng).slice(0,max).forEach(c=>{ L.marker([+c.lat,+c.lng]).addTo(map).bindPopup(`<b>${escapeHTML(c.title)}</b><br>${escapeHTML(c.id)} • ${escapeHTML(c.status)}`); });
   });
 }

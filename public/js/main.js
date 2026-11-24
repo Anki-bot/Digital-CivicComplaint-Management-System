@@ -32,7 +32,7 @@ async function renderHome() {
     if (typeof API !== 'undefined' && API.serverMode) {
       const d = await API.req('/api/complaints/public');
       all = d.complaints || [];
-      all.forEach(c => { c.createdAt = c.created_at || c.createdAt; c.photo = c.photo_path || c.photo || ''; });
+      all.forEach(c => { c.createdAt = c.created_at || c.createdAt; c.photo = c.photo_data || c.photo_path || c.photo || ''; });
     } else all = counts().all;
   } catch { all = counts().all; }
   const total = all.length, pending = all.filter(c => c.status === 'Pending').length,
@@ -51,6 +51,7 @@ async function renderHome() {
         <h3 style="margin:8px 0 4px">${escapeHTML(c.title)}</h3>
         <p>${escapeHTML(labels[c.category] || c.category)} • ${escapeHTML(c.location)}</p>
         <p style="font-size:.8rem">${escapeHTML(c.id)} • ${formatDate(c.createdAt || c.created_at)}</p>
+        ${c.photo ? `<img class="thumb" style="width:100%;height:150px;margin-top:8px;object-fit:cover;border-radius:8px" src="${c.photo}" alt="proof">` : ''}
         <div style="margin-top:10px;display:flex;gap:8px"><a class="btn btn-ghost btn-sm" href="track.html?id=${encodeURIComponent(c.id)}">Track</a><button class="btn btn-outline btn-sm" onclick="toggleUpvote('${c.id}')">👍 Upvote</button></div>
       </div>`;
     }).join('') : '<div class="card"><p>No complaints yet. Be the first to file one.</p></div>';
@@ -70,13 +71,7 @@ async function renderHome() {
     try {
       if (typeof API !== 'undefined' && API.serverMode) {
         const d = await API.req('/api/complaints/map');
-        const box = document.getElementById('publicMap');
-        if (typeof L === 'undefined') initPublicMap('publicMap');
-        else {
-          const { defaultCenter, leafletJS } = { defaultCenter: () => [28.6139, 77.2090], leafletJS: null };
-          initPublicMap('publicMap');
-        }
-        void d;
+        initPublicMap('publicMap', d.points || []);
       } else initPublicMap('publicMap');
     } catch { try { initPublicMap('publicMap'); } catch {} }
   }

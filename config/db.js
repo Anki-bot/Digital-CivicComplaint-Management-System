@@ -101,10 +101,10 @@ async function init() {
     complaint_id TEXT, detail TEXT, date TEXT)`);
   // photo_data migration for DBs created before this column existed
   try {
-    if (USE_PG) await run('ALTER TABLE complaints ADD COLUMN IF NOT EXISTS photo_data TEXT DEFAULT ?', ['']);
+    if (USE_PG) await run("ALTER TABLE complaints ADD COLUMN IF NOT EXISTS photo_data TEXT DEFAULT ''");
     else {
       const cols = await all('PRAGMA table_info(complaints)');
-      if (!cols.some(c => c.name === 'photo_data')) await run('ALTER TABLE complaints ADD COLUMN photo_data TEXT DEFAULT ?', ['']);
+      if (!cols.some(c => c.name === 'photo_data')) await run("ALTER TABLE complaints ADD COLUMN photo_data TEXT DEFAULT ''");
     }
   } catch {}
 
@@ -150,4 +150,4 @@ async function init() {
   }
 }
 
-module.exports = { db: sqliteDb, run, get, all, slaDue, deptForCategory, complaintId, init, USE_PG };
+module.exports = { db: sqliteDb, run, get, all, slaDue, deptForCategory, complaintId, init, USE_PG, toPg };

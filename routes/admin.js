@@ -15,12 +15,12 @@ r.get('/stats', async (req, res) => {
   const resRows = await all("SELECT created_at,updated_at FROM complaints WHERE status='Resolved'");
   const avg = resRows.length ? Math.round(resRows.reduce((s, x) => s + (new Date(x.updated_at) - new Date(x.created_at)) / 36e5, 0) / resRows.length) : 0;
   const sat = await get('SELECT AVG(rating) a FROM complaints WHERE rating>0');
-  res.json({ total: t.n, pending: p.n, progress: ip.n, resolved: rs.n, overdue, avgHrs: avg, sat: sat.a ? Number(sat.a).toFixed(1) : null });
+  res.json({ total: Number(t ? t.n : 0), pending: Number(p ? p.n : 0), progress: Number(ip ? ip.n : 0), resolved: Number(rs ? rs.n : 0), overdue, avgHrs: avg, sat: sat && sat.a ? Number(sat.a).toFixed(1) : null });
 });
 
 r.get('/complaints', async (req, res) => {
   const { q = '', status = 'All', category = 'All', ward = 'All', priority = 'All' } = req.query;
-  let rows = await all('SELECT * FROM complaints ORDER BY created_at DESC');
+  let rows = await all("SELECT id,user_id,user_email,user_name,category,title,description,location,ward,priority,lat,lng,anonymous,photo_path,status,remark,assigned_dept,assigned_staff,rating,upvotes_count,sla_due,created_at,updated_at,(CASE WHEN photo_data IS NOT NULL AND photo_data<>'' THEN 1 ELSE 0 END) AS has_photo FROM complaints ORDER BY created_at DESC");
   if (status === 'Overdue') rows = rows.filter(c => c.status !== 'Resolved' && c.status !== 'Rejected' && new Date() > new Date(c.sla_due));
   else if (status !== 'All') rows = rows.filter(c => c.status === status);
   if (category !== 'All') rows = rows.filter(c => c.category === category);
@@ -28,7 +28,7 @@ r.get('/complaints', async (req, res) => {
   if (priority !== 'All') rows = rows.filter(c => (c.priority || '') === priority);
   if (q) { const s = q.toLowerCase(); rows = rows.filter(c => (c.id + c.title + c.location + c.user_email + (c.assigned_staff || '')).toLowerCase().includes(s)); }
   for (const c of rows) {
-    c.photo = c.photo_data || c.photo_path || '';
+    c.photo = c.photo_path || ''; c.hasPhoto = !!(c.has_photo || c.photo);
     const ups = await get('SELECT COUNT(*) n FROM upvotes WHERE complaint_id=?', [c.id]);
     c.upvotesCount = ups.n;
     c.comments = await all('SELECT user_name AS by, text, created_at AS date FROM comments WHERE complaint_id=? ORDER BY id', [c.id]);
@@ -74,13 +74,22 @@ r.put('/users/:id', async (req, res) => {
   if (req.user.role !== 'admin') return res.status(403).json({ error: 'Admin only' });
   const { role, active } = req.body;
   if (role && !['citizen', 'staff', 'admin'].includes(role)) return res.status(400).json({ error: 'Bad role' });
-  await run('UPDATE users SET role=COALESCE(?,role), active=COALESCE(?,active) WHERE id=?', [role || null, active === undefined ? null : (active ? 1 : 0), req.params.id]);
+  await run('UPDATE users SET role=COALESCE(?,role), active=COALESCE(?,active) WHERE id=?', [role || null, active === undefined ? null : (active ? 1 : 0), Number(req.params.id)]);
   res.json({ ok: true });
 });
 
 r.get('/audit', async (req, res) => {
   const rows = await all('SELECT * FROM audit ORDER BY id DESC LIMIT 100');
   res.json({ audit: rows });
+});
+
+r.get('/export.csv', async (req, res) => {
+  const rows = await all('SELECT id,title,category,ward,priority,status,location,user_email,created_at,rating,upvotes_count FROM complaints ORDER BY created_at DESC');
+  const head = 'ID,Title,Category,Ward,Priority,Status,Location,User,Created,Rating,Upvotes';
+  const lines = rows.map(c => [c.id, `"${(c.title || '').replace(/"/g, '""')}"`, c.category, c.ward, c.priority, c.status, `"${(c.location || '').replace(/"/g, '""')}"`, c.user_email, c.created_at, c.rating || 0, c.upvotes_count || 0].join(','));
+  res.setHeader('Content-Type', 'text/csv');
+  res.setHeader('Content-Disposition', 'attachment; filename=janseva-complaints.csv');
+  res.send([head, ...lines].join('\n'));
 });
 
 module.exports = r;

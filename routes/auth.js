@@ -19,7 +19,7 @@ r.post('/register',
       const hash = bcrypt.hashSync(password, 10);
       const out = await run('INSERT INTO users(name,email,phone,pass_hash,role,created_at) VALUES(?,?,?,?,?,?)',
         [name.trim(), email.toLowerCase(), phone, hash, 'citizen', new Date().toISOString()]);
-      const user = await get('SELECT id,name,email,phone,role,created_at FROM users WHERE id=?', [out.lastID]);
+      const user = await get('SELECT id,name,email,phone,role,created_at FROM users WHERE id=?', [Number(out.lastID)]);
       res.json({ token: sign(user), user });
     } catch (err) { res.status(500).json({ error: 'Registration failed' }); }
   });
@@ -43,8 +43,8 @@ r.put('/profile', auth,
     if (!e.isEmpty()) return res.status(400).json({ error: e.array()[0].msg });
     const { name, phone } = req.body;
     await run('UPDATE users SET name=COALESCE(?,name), phone=COALESCE(?,phone) WHERE id=?',
-      [name || null, phone || null, req.user.id]);
-    const u = await get('SELECT id,name,email,phone,role,created_at FROM users WHERE id=?', [req.user.id]);
+      [name || null, phone || null, Number(req.user.id)]);
+    const u = await get('SELECT id,name,email,phone,role,created_at FROM users WHERE id=?', [Number(req.user.id)]);
     res.json({ user: u });
   });
 
@@ -52,7 +52,7 @@ r.post('/forgot', body('email').isEmail(), async (req, res) => {
   const u = await get('SELECT id FROM users WHERE email=?', [req.body.email.toLowerCase()]);
   if (!u) return res.json({ ok: true }); // don't leak
   const token = Math.random().toString(36).slice(2, 10).toUpperCase();
-  await run('UPDATE users SET reset_token=? WHERE id=?', [token, u.id]);
+  await run('UPDATE users SET reset_token=? WHERE id=?', [token, Number(u.id)]);
   // Demo: return token directly (production would email it)
   res.json({ ok: true, resetToken: token });
 });
@@ -62,7 +62,7 @@ r.post('/reset', async (req, res) => {
   if (!newPassword || newPassword.length < 6) return res.status(400).json({ error: 'Password min 6 chars' });
   const u = await get('SELECT * FROM users WHERE email=?', [String(email || '').toLowerCase()]);
   if (!u || u.reset_token !== token) return res.status(400).json({ error: 'Invalid reset code' });
-  await run('UPDATE users SET pass_hash=?, reset_token=NULL WHERE id=?', [bcrypt.hashSync(newPassword, 10), u.id]);
+  await run('UPDATE users SET pass_hash=?, reset_token=NULL WHERE id=?', [bcrypt.hashSync(newPassword, 10), Number(u.id)]);
   res.json({ ok: true });
 });
 

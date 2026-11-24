@@ -14,7 +14,7 @@ r.post('/announcements', auth, adminOnly, async (req, res) => {
   res.json({ ok: true });
 });
 r.delete('/announcements/:id', auth, adminOnly, async (req, res) => {
-  await run('DELETE FROM announcements WHERE id=?', [req.params.id]);
+  await run('DELETE FROM announcements WHERE id=?', [Number(req.params.id)]);
   res.json({ ok: true });
 });
 r.post('/contact', async (req, res) => {

@@ -12,6 +12,18 @@ function toggleLang(){ const p=prefs(); p.lang=(p.lang||'en')==='en'?'hi':'en'; 
 function initReveal(){ const io=new IntersectionObserver(es=>es.forEach(e=>{ if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target);} }),{threshold:.12}); document.querySelectorAll('.reveal').forEach(el=>io.observe(el)); }
 function animateCounters(){ document.querySelectorAll('[data-count]').forEach(el=>{ const target=+el.getAttribute('data-count')||0; let cur=0; const step=Math.max(1,Math.ceil(target/40)); const t=setInterval(()=>{ cur+=step; if(cur>=target){cur=target;clearInterval(t);} el.textContent=cur; },30); }); }
 function initFaq(){ document.querySelectorAll('.faq-q').forEach(q=>q.addEventListener('click',()=>q.parentElement.classList.toggle('open'))); }
-function renderTicker(){ const t=document.getElementById('tickerText'); if(!t) return; const a=(typeof getAnnouncements==='function'?getAnnouncements():[]); t.textContent=(a.length?a.map(x=>`📢 ${x.title} — ${x.body}`):['Welcome to JanSeva']).join('   •   '); }
+async function renderTicker(){
+  const t=document.getElementById('tickerText'); if(!t) return;
+  let a = [];
+  try {
+    if (typeof API !== 'undefined' && API.serverMode) {
+      const d = await API.req('/api/announcements');
+      a = d.announcements || [];
+    } else a = (typeof getAnnouncements==='function'?getAnnouncements():[]);
+  } catch {
+    a = (typeof getAnnouncements==='function'?getAnnouncements():[]);
+  }
+  t.textContent=(a.length?a.map(x=>`📢 ${x.title} — ${x.body}`):['Welcome to JanSeva']).join('   •   ');
+}
 function initPWA(){ if('serviceWorker' in navigator){ navigator.serviceWorker.register('./sw.js').catch(()=>{}); } }
 document.addEventListener('DOMContentLoaded',()=>{ applyTheme(); applyLang(); initReveal(); initFaq(); renderTicker(); initPWA(); document.getElementById('themeBtn')?.addEventListener('click',toggleTheme); document.getElementById('langBtn')?.addEventListener('click',toggleLang); });

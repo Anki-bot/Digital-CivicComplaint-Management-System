@@ -11,7 +11,7 @@ async function auth(req, res, next) {
   if (!token) return res.status(401).json({ error: 'Login required' });
   try {
     const p = jwt.verify(token, SECRET);
-    const u = await get('SELECT id,name,email,phone,role,active,created_at FROM users WHERE id=?', [p.id]);
+    const u = await get('SELECT id,name,email,phone,role,active,created_at FROM users WHERE id=?', [Number(p.id)]);
     if (!u || !u.active) return res.status(401).json({ error: 'Account disabled' });
     req.user = u;
     next();

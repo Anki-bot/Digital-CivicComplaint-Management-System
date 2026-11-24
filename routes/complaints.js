@@ -41,7 +41,7 @@ r.get('/track/:id', async (req, res) => {
 
 // Citizen: mine
 r.get('/mine', auth, async (req, res) => {
-  const rows = await all('SELECT * FROM complaints WHERE user_id=? ORDER BY created_at DESC', [req.user.id]);
+  const rows = await all('SELECT * FROM complaints WHERE user_id=? ORDER BY created_at DESC', [Number(req.user.id)]);
   const q = (req.query.q || '').toLowerCase(), f = req.query.status || 'All';
   let out = rows;
   if (f !== 'All') out = out.filter(c => c.status === f);
@@ -77,7 +77,7 @@ r.post('/', auth, upload.single('photo'), body('title').isLength({ min: 5 }),
     const photoData = req.file ? require('../middleware/upload').toDataURL(req.file) : '';
     await run(`INSERT INTO complaints(id,user_id,user_email,user_name,category,title,description,location,ward,priority,lat,lng,anonymous,photo_path,photo_data,status,assigned_dept,sla_due,created_at,updated_at)
       VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`,
-      [id, req.user.id, req.user.email, uname, category, title.trim(), description.trim(), location.trim(),
+      [id, Number(req.user.id), req.user.email, uname, category, title.trim(), description.trim(), location.trim(),
        ward || 'Ward 4', priority || 'Medium', lat || '', lng || '', anon, '', photoData, 'Pending',
        deptForCategory(category), slaDue(now, priority || 'Medium'), now, now]);
     await run('INSERT INTO history(complaint_id,status,remark,date) VALUES(?,?,?,?)', [id, 'Pending', 'Complaint registered', now]);
@@ -89,7 +89,7 @@ r.post('/', auth, upload.single('photo'), body('title').isLength({ min: 5 }),
 r.put('/:id', auth, async (req, res) => {
   const c = await get('SELECT * FROM complaints WHERE id=?', [req.params.id]);
   if (!c) return res.status(404).json({ error: 'Not found' });
-  if (c.user_id !== req.user.id && req.user.role === 'citizen') return res.status(403).json({ error: 'Not yours' });
+  if (Number(c.user_id) !== Number(req.user.id) && req.user.role === 'citizen') return res.status(403).json({ error: 'Not yours' });
   if (c.status !== 'Pending') return res.status(400).json({ error: 'Only Pending complaints can be edited' });
   const { title, description } = req.body;
   if ((title && title.trim().length < 5) || (description && description.trim().length < 10))
@@ -101,7 +101,7 @@ r.put('/:id', auth, async (req, res) => {
 r.delete('/:id', auth, async (req, res) => {
   const c = await get('SELECT * FROM complaints WHERE id=?', [req.params.id]);
   if (!c) return res.status(404).json({ error: 'Not found' });
-  const owner = c.user_id === req.user.id;
+  const owner = Number(c.user_id) === Number(req.user.id);
   if (!(owner && c.status === 'Pending') && req.user.role === 'citizen')
     return res.status(403).json({ error: 'Only Pending own complaints can be deleted' });
   await run('DELETE FROM complaints WHERE id=?', [c.id]);
@@ -115,9 +115,9 @@ r.delete('/:id', auth, async (req, res) => {
 r.post('/:id/upvote', auth, async (req, res) => {
   const c = await get('SELECT id FROM complaints WHERE id=?', [req.params.id]);
   if (!c) return res.status(404).json({ error: 'Not found' });
-  const ex = await get('SELECT * FROM upvotes WHERE complaint_id=? AND user_id=?', [c.id, req.user.id]);
-  if (ex) await run('DELETE FROM upvotes WHERE complaint_id=? AND user_id=?', [c.id, req.user.id]);
-  else await run('INSERT INTO upvotes(complaint_id,user_id,created_at) VALUES(?,?,?)', [c.id, req.user.id, new Date().toISOString()]);
+  const ex = await get('SELECT * FROM upvotes WHERE complaint_id=? AND user_id=?', [c.id, Number(req.user.id)]);
+  if (ex) await run('DELETE FROM upvotes WHERE complaint_id=? AND user_id=?', [c.id, Number(req.user.id)]);
+  else await run('INSERT INTO upvotes(complaint_id,user_id,created_at) VALUES(?,?,?)', [c.id, Number(req.user.id), new Date().toISOString()]);
   const n = await get('SELECT COUNT(*) n FROM upvotes WHERE complaint_id=?', [c.id]);
   await run('UPDATE complaints SET upvotes_count=? WHERE id=?', [n.n, c.id]);
   res.json({ upvotes: n.n, voted: !ex });

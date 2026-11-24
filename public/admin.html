@@ -4,7 +4,7 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script></head><body>
 <div class="tricolor"></div><div class="ticker"><span id="tickerText">Admin</span></div>
 <nav class="navbar"><div class="container nav-inner"><a class="brand" href="index.html"><span class="brand-mark">🏛️</span><span>JanSeva<small>ADMIN PRO</small></span></a><button class="menu-btn" id="menuToggle">☰</button>
-<div class="nav-links" id="navLinks"><a href="index.html">Home</a><a href="admin.html" data-auth="admin">Dashboard</a><a href="track.html">Track</a><span id="navUser" data-auth="user" style="color:#fbbf24;font-size:.85rem"></span><a href="#" data-auth="user" data-logout>Logout</a><button class="icon-btn" id="themeBtn">🌙</button></div></div></nav>
+<div class="nav-links" id="navLinks"><a href="index.html">Home</a><a href="departments.html">Departments</a><a href="about.html">About</a><a href="faq.html">FAQ</a><a href="file-complaint.html" data-auth="user" data-i18n="file">File a Complaint</a><a href="dashboard.html" data-auth="user" data-i18n="my">My Complaints</a><a href="track.html" data-i18n="track">Track by ID</a><a href="admin.html" data-auth="admin" data-i18n="admin">Admin</a><a href="profile.html" data-auth="user">Profile</a><a href="login.html" data-auth="guest" data-i18n="login">Login</a><a href="register.html" data-auth="guest" class="btn btn-accent btn-sm" style="color:#1f2937">Register</a><span id="navUser" data-auth="user" style="color:#fbbf24;font-size:.85rem"></span><a href="#" data-auth="user" data-logout>Logout</a><button class="icon-btn" id="themeBtn" title="Dark mode">🌙</button><button class="icon-btn" id="langBtn" title="Language">हिं</button></div></div></nav>
 <section class="section"><div class="container">
 <h2>Admin Dashboard 📊</h2><p style="color:var(--muted);margin-bottom:16px" id="adminCount"></p>
 <div class="grid-4" style="margin-bottom:16px">
@@ -29,6 +29,12 @@
 <select id="adminWard"><option>All</option><option>Ward 1</option><option>Ward 2</option><option>Ward 3</option><option>Ward 4</option><option>Ward 5</option><option>Ward 6</option><option>Ward 7</option><option>Ward 8</option></select>
 <select id="adminPriority"><option>All</option><option>Low</option><option>Medium</option><option>High</option><option>Urgent</option></select></div>
 <div class="table-wrap"><table><thead><tr><th>ID / SLA</th><th>Complaint</th><th>Status</th><th>Photo</th><th>Actions</th></tr></thead><tbody id="adminBody"></tbody></table></div></div>
+<div class="card" style="margin-top:16px"><h3>👥 User Management</h3>
+<p style="color:var(--muted);font-size:.9rem;margin-bottom:12px">Change roles and enable/disable accounts. Admin-only controls.</p>
+<div class="table-wrap"><table><thead><tr><th>Name</th><th>Email</th><th>Phone</th><th>Role</th><th>Status</th><th>Joined</th></tr></thead><tbody id="usersBody"></tbody></table></div></div>
+<div class="card" style="margin-top:16px"><h3>📋 Audit Trail</h3>
+<p style="color:var(--muted);font-size:.9rem;margin-bottom:12px">Last 100 admin actions logged automatically.</p>
+<div class="table-wrap"><table><thead><tr><th>Date</th><th>Actor</th><th>Action</th><th>Complaint</th><th>Detail</th></tr></thead><tbody id="auditBody"></tbody></table></div></div>
 </div></section>
 <footer><div class="copy">© <span id="year"></span> JanSeva Admin</div></footer>
 <script src="js/data.js"></script><script src="js/api.js"></script><script src="js/auth.js"></script><script src="js/ui.js"></script><script src="js/main.js"></script><script src="js/complaint.js"></script><script src="js/engage.js"></script><script src="js/admin.js"></script>

@@ -42,21 +42,6 @@ app.use('/api', require('./routes/public'));
 
 app.get('/api/health', (req, res) => res.json({ ok: true, time: new Date().toISOString() }));
 
-// CSV export (admin/staff)
-app.get('/api/admin/export.csv', async (req, res) => {
-  const { auth, adminOnly } = require('./middleware/auth');
-  await new Promise((resolve) => auth(req, res, resolve));
-  if (!req.user) return;
-  if (req.user.role !== 'admin' && req.user.role !== 'staff') return res.status(403).send('forbidden');
-  const { all } = require('./config/db');
-  const rows = await all('SELECT * FROM complaints ORDER BY created_at DESC');
-  const head = 'ID,Title,Category,Ward,Priority,Status,Location,User,Created,Rating,Upvotes';
-  const lines = rows.map(c => [c.id, `"${(c.title || '').replace(/"/g, '""')}"`, c.category, c.ward, c.priority, c.status, `"${(c.location || '').replace(/"/g, '""')}"`, c.user_email, c.created_at, c.rating || 0, c.upvotes_count || 0].join(','));
-  res.setHeader('Content-Type', 'text/csv');
-  res.setHeader('Content-Disposition', 'attachment; filename=janseva-complaints.csv');
-  res.send([head, ...lines].join('\n'));
-});
-
 // Central error handler: clean 400 JSON for upload/validation errors (not 500 HTML)
 const multer = require('multer');
 app.use((err, req, res, next) => {
