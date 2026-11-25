@@ -2,6 +2,7 @@
 let pendingPhotoBase64 = '';
 let pendingPhotoFile = null;
 const serverMode = () => (typeof API !== 'undefined' && API.serverMode && API.token);
+const publicServerMode = () => (typeof API !== 'undefined' && API.serverMode);
 
 /* Normalize server (snake_case) vs legacy (camelCase) shapes */
 function N(c) {
@@ -156,7 +157,7 @@ async function renderMyComplaints() {
 
 async function viewTimeline(id) {
   let c = null;
-  try { c = serverMode() ? await apiTrack(id) : N(getComplaints().find(x => x.id === id)); }
+  try { c = publicServerMode() ? await apiTrack(id) : N(getComplaints().find(x => x.id === id)); }
   catch { c = N(getComplaints().find(x => x.id === id)); }
   if (!c) return;
   openModal(`<h3>${escapeHTML(c.title)}</h3><p style="color:var(--muted);font-size:.88rem">${escapeHTML(c.id)} • ${escapeHTML(c.status)} • SLA: ${formatDate(c.slaDue || c.createdAt)}</p>${stepperHTML(c.status)}<div class="timeline">${(c.history || []).map(h => `<div class="timeline-item"><b>${escapeHTML(h.status)}</b><br><small>${formatDate(h.date)}</small><p style="font-size:.9rem">${escapeHTML(h.remark || '')}</p></div>`).join('')}</div>`);
@@ -196,10 +197,12 @@ async function doTrack(id) {
   out.innerHTML = '<div class="card"><p>Loading…</p></div>';
   let c = null;
   try {
-    if (serverMode()) c = await apiTrack(id);
+    if (publicServerMode()) c = await apiTrack(id);
     else c = N(getComplaints().find(x => x.id.toUpperCase() === id.toUpperCase()));
   } catch (e) {
-    try { c = N(getComplaints().find(x => x.id.toUpperCase() === id.toUpperCase())); } catch {}
+    if (e.message === 'OFFLINE') {
+      try { c = N(getComplaints().find(x => x.id.toUpperCase() === id.toUpperCase())); } catch {}
+    }
     if (!c) { out.innerHTML = `<div class="card"><p style="color:var(--danger)">${escapeHTML(e.message)}</p></div>`; return; }
   }
   if (!c) { out.innerHTML = '<div class="empty"><div>🔍</div><h3>Not found</h3><p>Check the ID, e.g. CIV-2026-1001</p></div>'; return; }

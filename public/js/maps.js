@@ -1,6 +1,6 @@
 /* Maps via Leaflet + OSM, graceful offline fallback */
 function leafletCSS(){ if(document.getElementById('leafletCss')) return; const l=document.createElement('link'); l.id='leafletCss'; l.rel='stylesheet'; l.href='https://unpkg.com/leaflet@1.9.4/dist/leaflet.css'; document.head.appendChild(l); }
-function leafletJS(cb){ if(typeof L!=='undefined') return cb(); leafletCSS(); const s=document.createElement('script'); s.src='https://unpkg.com/leaflet@1.9.4/dist/leaflet.js'; s.onload=cb; s.onerror=()=>cb(new Error('offline')); document.head.appendChild(s); }
+function leafletJS(cb){ if(typeof L!=='undefined') return cb(null); leafletCSS(); const s=document.createElement('script'); s.src='https://unpkg.com/leaflet@1.9.4/dist/leaflet.js'; s.onload=()=>cb(null); s.onerror=()=>cb(new Error('offline')); document.head.appendChild(s); }
 function defaultCenter(){ return [28.6139,77.2090]; } // New Delhi default
 function initPicker(mapId, latId, lngId){
   const box=document.getElementById(mapId); if(!box) return;
