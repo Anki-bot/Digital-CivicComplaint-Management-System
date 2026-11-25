@@ -71,7 +71,7 @@ async function renderHome() {
     try {
       if (typeof API !== 'undefined' && API.serverMode) {
         const d = await API.req('/api/complaints/map');
-        initPublicMap('publicMap', d.points || []);
+        initPublicMap('publicMap', d.points || d.complaints || (Array.isArray(d) ? d : []));
       } else initPublicMap('publicMap');
     } catch { try { initPublicMap('publicMap'); } catch {} }
   }
