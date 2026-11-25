@@ -69,8 +69,7 @@ async function renderHome() {
   }
   if (document.getElementById('publicMap') && typeof initPublicMap === 'function') {
     try {
-      if (typeof API !== 'undefined' && API.serverMode) {
-        const d = await API.req('/api/complaints/map');
+      if (typeof API !== 'undefined') { if (typeof API.init === 'function' && !API.serverMode) { try { await API.init(); } catch {} } const d = await API.req('/api/complaints/map');
         initPublicMap('publicMap', d.points || d.complaints || (Array.isArray(d) ? d : []));
       } else initPublicMap('publicMap');
     } catch { try { initPublicMap('publicMap'); } catch {} }
