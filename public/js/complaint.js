@@ -1,7 +1,7 @@
 /* Citizen Pro — real API first, localStorage fallback */
 let pendingPhotoBase64 = '';
 let pendingPhotoFile = null;
-const serverMode = () => (typeof API !== 'undefined' && API.serverMode && API.token);
+const serverMode = () => (typeof API !== 'undefined' && API.serverMode);
 const publicServerMode = () => (typeof API !== 'undefined' && API.serverMode);
 
 /* Normalize server (snake_case) vs legacy (camelCase) shapes */
